@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AirPaint - Dibujo Aéreo por Gestos</title>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons for premium feel -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Tailwind is avoided as requested, we will use vanilla css in style.css -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- MediaPipe CDN dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <!-- Loader Screen -->
+  <div id="loader" class="loader-overlay">
+    <div class="loader-content">
+      <div class="loader-spinner"></div>
+      <h1 class="loader-title">AirPaint</h1>
+      <p class="loader-status">Iniciando modelo de Inteligencia Artificial...</p>
+      <span class="loader-subtext">Asegúrate de permitir el acceso a tu cámara web</span>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- Background / Camera Container -->
+    <div class="viewport-container">
+      <!-- Hidden webcam feed used for MediaPipe analysis -->
+      <video id="webcam" autoplay playsinline muted></video>
+      <!-- Visual canvas where camera frames + tracking visual cues are drawn -->
+      <canvas id="ui-canvas"></canvas>
+      <!-- Draw canvas where drawings are rendered -->
+      <canvas id="paint-canvas"></canvas>
+    </div>
+
+    <!-- Floating Sidebar (Glassmorphic) -->
+    <div class="floating-sidebar">
+      <div class="brand">
+        <span class="brand-title">AirPaint</span>
+        <span class="brand-badge">IA</span>
+      </div>
+
+      <hr class="separator">
+
+      <!-- Tool Group -->
+      <div class="tool-group">
+        <span class="group-label">Herramientas</span>
+        <button id="tool-pencil" class="btn-tool active" title="Lápiz (Pinch)">
+          <i data-lucide="edit-3"></i>
+          <span>Lápiz</span>
+        </button>
+        <button id="tool-rect" class="btn-tool" title="Rectángulo (Pinch)">
+          <i data-lucide="square"></i>
+          <span>Rectángulo</span>
+        </button>
+        <button id="tool-circle" class="btn-tool" title="Círculo (Pinch)">
+          <i data-lucide="circle"></i>
+          <span>Círculo</span>
+        </button>
+        <button id="tool-select" class="btn-tool" title="Seleccionar y Arrastrar">
+          <i data-lucide="move"></i>
+          <span>Seleccionar</span>
+        </button>
+        <button id="tool-eraser" class="btn-tool" title="Borrador">
+          <i data-lucide="eraser"></i>
+          <span>Borrador</span>
+        </button>
+      </div>
+
+      <!-- Settings Group -->
+      <div class="tool-group">
+        <span class="group-label">Estilos</span>
+        
+        <!-- Palette -->
+        <div class="color-palette">
+          <div class="color-swatch active" style="background-color: #00f0ff;" data-color="#00f0ff"></div>
+          <div class="color-swatch" style="background-color: #ff007f;" data-color="#ff007f"></div>
+          <div class="color-swatch" style="background-color: #39ff14;" data-color="#39ff14"></div>
+          <div class="color-swatch" style="background-color: #ffff00;" data-color="#ffff00"></div>
+          <div class="color-swatch" style="background-color: #bd00ff;" data-color="#bd00ff"></div>
+          <div class="color-swatch" style="background-color: #ffffff;" data-color="#ffffff"></div>
+        </div>
+
+        <div class="custom-color-container">
+          <label for="color-picker" class="custom-color-label">
+            <i data-lucide="palette"></i> Color Personalizado
+          </label>
+          <input type="color" id="color-picker" value="#00f0ff">
+        </div>
+
+        <div class="thickness-container">
+          <span class="thickness-label">Grosor: <span id="thickness-val">5px</span></span>
+          <input type="range" id="thickness-slider" min="2" max="30" value="5" step="1">
+        </div>
+      </div>
+
+      <!-- Actions Group -->
+      <div class="tool-group actions-group">
+        <span class="group-label">Acciones</span>
+        <div class="action-buttons-row">
+          <button id="action-undo" class="btn-action" title="Deshacer (Ctrl+Z)">
+            <i data-lucide="undo-2"></i>
+          </button>
+          <button id="action-redo" class="btn-action" title="Rehacer (Ctrl+Y)">
+            <i data-lucide="redo-2"></i>
+          </button>
+          <button id="action-clear" class="btn-action btn-danger" title="Limpiar Lienzo">
+            <i data-lucide="trash-2"></i>
+          </button>
+        </div>
+        <button id="action-save" class="btn-save">
+          <i data-lucide="download"></i>
+          <span>Guardar Dibujo</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Hand Gestures Quick Guide Overlay (Top Right) -->
+    <div class="gesture-guide">
+      <h3 class="guide-title">Gestos Rápidos</h3>
+      <div class="guide-item">
+        <span class="gesture-icon">👌</span>
+        <div class="gesture-text">
+          <strong class="gesture-name">Pinch (Índice + Pulgar)</strong>
+          <span class="gesture-desc">Dibujar o crear formas en el aire</span>
+        </div>
+      </div>
+      <div class="guide-item">
+        <span class="gesture-icon">✊</span>
+        <div class="gesture-text">
+          <strong class="gesture-name">Puño Cerrado (Fist)</strong>
+          <span class="gesture-desc">Arrastrar figuras en cualquier modo</span>
+        </div>
+      </div>
+      <div class="guide-item">
+        <span class="gesture-icon">✌️</span>
+        <div class="gesture-text">
+          <strong class="gesture-name">Gesto de Paz / Dos Dedos</strong>
+          <span class="gesture-desc">Menú interactivo en la mano</span>
+        </div>
+      </div>
+      <div class="guide-item">
+        <span class="gesture-icon">🖐️</span>
+        <div class="gesture-text">
+          <strong class="gesture-name">Mano Abierta</strong>
+          <span class="gesture-desc">Mover el cursor (sin pintar)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Gesture Status Notification -->
+    <div id="gesture-toast" class="gesture-toast">
+      <span class="toast-indicator"></span>
+      <span id="toast-text">Esperando mano...</span>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>
