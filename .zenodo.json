@@ -1,0 +1,20 @@
+{
+  "title": "airpaint-gesture-canvas-ai: Real-Time Hand Gesture Air-Drawing System and Human-Computer Interface via AI Computer Vision",
+  "upload_type": "software",
+  "description": "An interactive Human-Computer Interface (HCI) and aerial drawing system that leverages real-time artificial intelligence and MediaPipe hand landmark tracking to enable touchless canvas sketching, geometric gesture classification, and spatial interaction.",
+  "creators": [
+    {
+      "name": "Pepe Sánchez, Roberto Andrés",
+      "affiliation": "Universidad Técnica de Ambato"
+    }
+  ],
+  "access_right": "open",
+  "license": "MIT",
+  "keywords": [
+    "computer-vision",
+    "human-computer-interaction",
+    "gesture-recognition",
+    "mediapipe",
+    "artificial-intelligence"
+  ]
+}

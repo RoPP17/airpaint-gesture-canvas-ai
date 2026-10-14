@@ -1,4 +1,4 @@
-# 🖐️ AirPaint — Lienzo de Dibujo Aéreo por Gestos con IA (MediaPipe)
+﻿# 🖐️ AirPaint — Lienzo de Dibujo Aéreo por Gestos con IA (MediaPipe)
 
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6%2B-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/es/docs/Web/JavaScript)
 [![MediaPipe](https://img.shields.io/badge/AI%20Vision-MediaPipe%20Hands-0097A7?style=for-the-badge&logo=google&logoColor=white)](https://developers.google.com/mediapipe)
@@ -64,3 +64,21 @@
 ## 📜 Licencia
 
 Este proyecto está bajo la Licencia [MIT](LICENSE).
+
+---
+
+## 📚 Citación Académica (Citation)
+
+Si utilizas este software o sistema en investigaciones, prototipos o publicaciones sobre Interacción Humano-Computador (HCI) o Visión Artificial, por favor cítalo como:
+
+``bibtex
+@software{pepe_sanchez_2026_airpaint,
+  author       = {Pepe Sánchez, Roberto Andrés},
+  title        = {airpaint-gesture-canvas-ai: Real-Time Hand Gesture Air-Drawing System and Human-Computer Interface via AI Computer Vision},
+  month        = oct,
+  year         = 2026,
+  publisher    = {Zenodo},
+  version      = {v1.0.0},
+  url          = {https://github.com/RoPP17/airpaint-gesture-canvas-ai}
+}
+``
